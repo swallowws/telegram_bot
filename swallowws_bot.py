@@ -1,19 +1,11 @@
 #!/usr/env/bin python
+# -*- coding: utf-8 -*-
 
 import sys
-from telegram.ext import Updater, CommandHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import MySQLdb
 import configparser
-
-# try:
-#    sys.path.append('.private')
-#    from config import TOKEN, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE
-# except ImportError as e:
-#    print("need TOKEN, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE from .private/config.py! \n", e)
-#    sys.exit(1)
-
-# up = Updater(token=TOKEN)
-# dispatcher = up.dispatcher
+import datetime
 
 
 def read_config(config_file):
@@ -50,15 +42,16 @@ def get_data_from_database():
         data = cursor.fetchall()
         for rec in data:
             dateTime, pressure, outTemp, inTemp, outHumidity, windSpeed, windDir, deltarain, geiger, illumination = rec
-        return {'dateTime'     : (int(dateTime) if dateTime is not None else None),
-                'pressure'     : (int(pressure) if pressure is not None else None),
-                'outTemp'      : (float(outTemp) if outTemp is not None else None),
-                'inTemp'       : (float(inTemp) if inTemp is not None else None),
-                'outHumidity'  : (int(outHumidity) if outHumidity is not None else None),
-                'windSpeed'    : (float(windSpeed) if windSpeed is not None else None),
-                'deltarain'    : (int(deltarain) if deltarain is not None else None),
-                'geiger'       : (int(geiger) if geiger is not None else None),
-                'illumination' : (int(illumination) if illumination is not None else None)}
+        return {'dateTime'     : (int(dateTime) if dateTime is not None else '---'),
+                'pressure'     : (int(pressure) if pressure is not None else '---'),
+                'outTemp'      : (round(float(outTemp), 1) if outTemp is not None else '---'),
+                'inTemp'       : (round(float(inTemp), 1) if inTemp is not None else '---'),
+                'outHumidity'  : (int(outHumidity) if outHumidity is not None else '---'),
+                'windSpeed'    : (round(float(windSpeed), 1) if windSpeed is not None else '---'),
+                'deltarain'    : (int(deltarain) if deltarain is not None else '---'),
+                'geiger'       : (int(geiger) if geiger is not None else '---'),
+                'illumination' : (int(illumination) if illumination is not None else '---')
+                }
     except Exception as e:
         print(e)
         return None
@@ -67,6 +60,58 @@ def get_data_from_database():
         db.close()
 
 
-token, mysql_user, mysql_password, mysql_db = read_config('.config/config.cfg')
-data = get_data_from_database()
-print(data)
+def tell_weather(bot, update):
+    current_weather = get_data_from_database()
+
+    text = """
+           Погода на %s: \
+           \n\xF0\x9F\x94\xB9 температура воздуха: %s °C \
+           \n\xF0\x9F\x94\xB9 давление: %s мм рт.ст \
+           \n\xF0\x9F\x94\xB9 освещенность: %s люкс \
+
+           """ % (datetime.datetime.fromtimestamp(int(current_weather['dateTime'])).strftime('%d.%m.%Y, %H:%M'),
+                  current_weather['outTemp'],
+                  current_weather['pressure'],
+                  current_weather['illumination'],
+                  )
+
+    bot.send_message(chat_id=update.message.chat_id,
+                     text=text)
+    print(update.message.chat_id, update.message.text)
+
+
+def echo(bot, update):
+    update.message.reply_text(update.message.text)
+
+
+def main():
+
+    # Create the EventHandler and pass it your bot's token.
+    updater = Updater(token)
+
+    # Get the dispatcher to register handlers
+    dp = updater.dispatcher
+
+    # on different commands - answer in Telegram
+    dp.add_handler(CommandHandler("start", start))
+    # dp.add_handler(CommandHandler("help", help))
+    dp.add_handler(CommandHandler("tell", tell_weather))
+
+    # on noncommand i.e message - echo the message on Telegram
+    dp.add_handler(MessageHandler(Filters.text, echo))
+
+    # log all errors
+    # dp.add_error_handler(error)
+
+    # Start the Bot
+    updater.start_polling()
+
+    # Run the bot until the you presses Ctrl-C or the process receives SIGINT,
+    # SIGTERM or SIGABRT. This should be used most of the time, since
+    # start_polling() is non-blocking and will stop the bot gracefully.
+    updater.idle()
+
+
+if __name__ == '__main__':
+    token, mysql_user, mysql_password, mysql_db = read_config('.config/config.cfg')
+    main()
