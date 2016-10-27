@@ -19,12 +19,12 @@ def read_config(config_file):
 
 
 def start(bot, update):
-    msg = "Hello {user_name}! I'm {bot_name}."
+    msg = "Погодная станция \"Ласточка\" " \
+          "(Санкт-Петербург, Светлановская пл.) " \
+          "\n Чтобы узнать текущий прогноз погоды, отправь /tell"
 
     bot.send_message(chat_id=update.message.chat_id,
-                     text=msg.format(
-                          user_name=update.message.from_user.first_name,
-                          bot_name=bot.name))
+                     text=msg)
 
 
 def get_data_from_database():
@@ -43,7 +43,7 @@ def get_data_from_database():
         for rec in data:
             dateTime, pressure, outTemp, inTemp, outHumidity, windSpeed, windDir, deltarain, geiger, illumination = rec
         return {'dateTime'     : (int(dateTime) if dateTime is not None else '---'),
-                'pressure'     : (int(pressure) if pressure is not None else '---'),
+                'pressure'     : (int(pressure * 0.750064) if pressure is not None else '---'),  # hPa to mmHg
                 'outTemp'      : (round(float(outTemp), 1) if outTemp is not None else '---'),
                 'inTemp'       : (round(float(inTemp), 1) if inTemp is not None else '---'),
                 'outHumidity'  : (int(outHumidity) if outHumidity is not None else '---'),
@@ -63,20 +63,23 @@ def get_data_from_database():
 def tell_weather(bot, update):
     current_weather = get_data_from_database()
 
-    text = """
-           Погода на %s: \
-           \n\xF0\x9F\x94\xB9 температура воздуха: %s °C \
-           \n\xF0\x9F\x94\xB9 давление: %s мм рт.ст \
-           \n\xF0\x9F\x94\xB9 освещенность: %s люкс \
-
+    msg = """
+           Погодные данные на %s: \
+           \n\xF0\x9F\x94\xB9 Температура воздуха: %s °C \
+           \n\xF0\x9F\x94\xB9 Давление: %s мм рт.ст \
+           \n\xF0\x9F\x94\xB9 Влажность: %s %% \
+           \n\xF0\x9F\x94\xB9 Ветер: %s м/с\
+           \n\xF0\x9F\x94\xB9 Освещенность: %s люкс \
            """ % (datetime.datetime.fromtimestamp(int(current_weather['dateTime'])).strftime('%d.%m.%Y, %H:%M'),
                   current_weather['outTemp'],
                   current_weather['pressure'],
-                  current_weather['illumination'],
+                  current_weather['outHumidity'],
+                  current_weather['windSpeed'],
+                  current_weather['illumination']
                   )
 
     bot.send_message(chat_id=update.message.chat_id,
-                     text=text)
+                     text=msg)
     print(update.message.chat_id, update.message.text)
 
 
