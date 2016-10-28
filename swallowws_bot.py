@@ -28,7 +28,7 @@ def start(bot, update):
 
 
 def get_data_from_database():
-    db = MySQLdb.connect(host='localhost', user=mysql_user, db=mysql_db, passwd=mysql_password)
+    db = MySQLdb.connect(host='localhost', user=MYSQL_USER, db=MYSQL_DB passwd=MYSQL_PASSWD)
     cursor = db.cursor()
     try:
         query = "SELECT " \
@@ -90,7 +90,7 @@ def echo(bot, update):
 def main():
 
     # Create the EventHandler and pass it your bot's token.
-    updater = Updater(token)
+    updater = Updater(TOKEN)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
@@ -116,5 +116,4 @@ def main():
 
 
 if __name__ == '__main__':
-    token, mysql_user, mysql_password, mysql_db = read_config('.config/config.cfg')
     main()
