@@ -1,1 +1,1 @@
-web: python swallowws_bot.py
+init: python swallowws_bot.py
