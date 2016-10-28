@@ -29,6 +29,7 @@ def read_config(CONFIG):
         MYSQL_DB = os.environ['MYSQL_DB']
         return TOKEN, MYSQL_USER, MYSQL_PASSWD, MYSQL_DB
     else:
+        print('nor \"local\" or \"heroku\" in CONFIG')
         raise Exception
 
 
