@@ -43,6 +43,7 @@ def start(bot, update):
 
 
 def get_data_from_database():
+    print(TOKEN, MYSQL_USER, MYSQL_PASSWD, MYSQL_DB)
     db = MySQLdb.connect(host='localhost', user=MYSQL_USER, db=MYSQL_DB, passwd=MYSQL_PASSWD)
     cursor = db.cursor()
     try:
