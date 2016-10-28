@@ -8,27 +8,41 @@ import configparser
 import datetime
 import os
 
-def read_config(config_file):
-    config = configparser.ConfigParser()
-    config.read(config_file)
-    token = config.get('BOT', 'token')
-    mysql_user = config.get('MYSQL', 'user')
-    mysql_password = config.get('MYSQL', 'password')
-    mysql_db = config.get('MYSQL', 'database')
-    return token, mysql_user, mysql_password, mysql_db
+
+CONFIG = "local"
+global TOKEN, MYSQL_USER, MYSQL_PASSWD, MYSQL_DB
+
+
+def read_config(CONFIG):
+    if CONFIG == "local":
+        config = configparser.ConfigParser()
+        config.read('.config/config.cfg')
+        TOKEN = config.get('BOT', 'token')
+        MYSQL_USER = config.get('MYSQL', 'user')
+        MYSQL_PASSWD= config.get('MYSQL', 'password')
+        MYSQL_DB = config.get('MYSQL', 'database')
+        return TOKEN, MYSQL_USER, MYSQL_PASSWD, MYSQL_DB
+    elif CONFIG == "heroku":
+        TOKEN = os.environ['TOKEN']
+        MYSQL_USER = os.environ['MYSQL_USER']
+        MYSQL_PASSWD = os.environ['MYSQL_PASSWD']
+        MYSQL_DB = os.environ['MYSQL_DB']
+        return TOKEN, MYSQL_USER, MYSQL_PASSWD, MYSQL_DB
+    else:
+        raise Exception
 
 
 def start(bot, update):
     msg = "Погодная станция \"Ласточка\" " \
           "(Санкт-Петербург, Светлановская пл.) " \
-          "\n Чтобы узнать текущий прогноз погоды, отправь /tell"
+          "\n Чтобы узнать погоду, отправь /tell"
 
     bot.send_message(chat_id=update.message.chat_id,
                      text=msg)
 
 
 def get_data_from_database():
-    db = MySQLdb.connect(host='localhost', user=os.environ['MYSQL_USER'], db=os.environ['MYSQL_DB'], passwd=os.environ['MYSQL_PASSWD'])
+    db = MySQLdb.connect(host='localhost', user=MYSQL_USER, db=MYSQL_DB, passwd=MYSQL_PASSWD)
     cursor = db.cursor()
     try:
         query = "SELECT " \
@@ -99,9 +113,10 @@ def echo(bot, update):
 
 
 def main():
+    TOKEN, MYSQL_USER, MYSQL_PASSWD, MYSQL_DB = read_config(CONFIG)
 
     # Create the EventHandler and pass it your bot's token.
-    updater = Updater(os.environ['TOKEN'])
+    updater = Updater(TOKEN)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
