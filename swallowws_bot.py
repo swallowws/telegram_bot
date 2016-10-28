@@ -32,11 +32,20 @@ def get_data_from_database():
     cursor = db.cursor()
     try:
         query = "SELECT " \
-                "dateTime, pressure, outTemp, inTemp, outHumidity, windSpeed, windDir, deltarain, geiger, illumination " \
+                    "dateTime, " \
+                    "pressure, " \
+                    "outTemp, " \
+                    "inTemp, " \
+                    "outHumidity, " \
+                    "windSpeed, " \
+                    "windDir, " \
+                    "deltarain, " \
+                    "geiger, " \
+                    "illumination " \
                 "FROM " \
-                "raw " \
+                    "raw " \
                 "ORDER BY " \
-                "dateTime " \
+                    "dateTime " \
                 "DESC LIMIT 1;"
         cursor.execute(query)
         data = cursor.fetchall()
@@ -69,12 +78,14 @@ def tell_weather(bot, update):
            \n\xF0\x9F\x94\xB9 Давление: %s мм рт.ст \
            \n\xF0\x9F\x94\xB9 Влажность: %s %% \
            \n\xF0\x9F\x94\xB9 Ветер: %s м/с\
+           \n\xF0\x9F\x94\xB9 Дождь: %s мм/ч\
            \n\xF0\x9F\x94\xB9 Освещенность: %s люкс \
            """ % (datetime.datetime.fromtimestamp(int(current_weather['dateTime'])).strftime('%d.%m.%Y, %H:%M'),
                   current_weather['outTemp'],
                   current_weather['pressure'],
                   current_weather['outHumidity'],
                   current_weather['windSpeed'],
+                  current_weather['deltarain'],
                   current_weather['illumination']
                   )
 
