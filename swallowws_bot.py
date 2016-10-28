@@ -9,28 +9,25 @@ import datetime
 import os
 
 
-CONFIG = "local"
-global TOKEN, MYSQL_USER, MYSQL_PASSWD, MYSQL_DB
+CONFIG_WAY = "local"
 
-
-def read_config(CONFIG):
-    if CONFIG == "local":
-        config = configparser.ConfigParser()
-        config.read('.config/config.cfg')
-        TOKEN = config.get('BOT', 'token')
-        MYSQL_USER = config.get('MYSQL', 'user')
-        MYSQL_PASSWD= config.get('MYSQL', 'password')
-        MYSQL_DB = config.get('MYSQL', 'database')
-        return TOKEN, MYSQL_USER, MYSQL_PASSWD, MYSQL_DB
-    elif CONFIG == "heroku":
-        TOKEN = os.environ['TOKEN']
-        MYSQL_USER = os.environ['MYSQL_USER']
-        MYSQL_PASSWD = os.environ['MYSQL_PASSWD']
-        MYSQL_DB = os.environ['MYSQL_DB']
-        return TOKEN, MYSQL_USER, MYSQL_PASSWD, MYSQL_DB
-    else:
-        print('nor \"local\" or \"heroku\" in CONFIG')
-        raise Exception
+if CONFIG_WAY == "local":
+    config = configparser.ConfigParser()
+    config.read('.config/config.cfg')
+    token = config.get('BOT', 'token')
+    mysql_user = config.get('MYSQL', 'user')
+    mysql_passwd = config.get('MYSQL', 'password')
+    mysql_db = config.get('MYSQL', 'database')
+    config = {'token': token, 'mysql_user': mysql_user, 'mysql_passwd': mysql_passwd, 'mysql_db': mysql_db}
+elif CONFIG_WAY == "heroku":
+    token = os.environ['TOKEN']
+    mysql_user = os.environ['MYSQL_USER']
+    mysql_passwd = os.environ['MYSQL_PASSWD']
+    mysql_db = os.environ['MYSQL_DB']
+    config = {'token': token, 'mysql_user': mysql_user, 'mysql_passwd': mysql_passwd, 'mysql_db': mysql_db}
+else:
+    print('nor \"local\" or \"heroku\" in CONFIG')
+    raise Exception
 
 
 def start(bot, update):
@@ -43,26 +40,10 @@ def start(bot, update):
 
 
 def get_data_from_database():
-    print(TOKEN, MYSQL_USER, MYSQL_PASSWD, MYSQL_DB)
-    db = MySQLdb.connect(host='localhost', user=MYSQL_USER, db=MYSQL_DB, passwd=MYSQL_PASSWD)
+    db = MySQLdb.connect(host='localhost', user=config['mysql_user'], passwd=config['mysql_passwd'], db=config['mysql_db'])
     cursor = db.cursor()
     try:
-        query = "SELECT " \
-                    "dateTime, " \
-                    "pressure, " \
-                    "outTemp, " \
-                    "inTemp, " \
-                    "outHumidity, " \
-                    "windSpeed, " \
-                    "windDir, " \
-                    "deltarain, " \
-                    "geiger, " \
-                    "illumination " \
-                "FROM " \
-                    "raw " \
-                "ORDER BY " \
-                    "dateTime " \
-                "DESC LIMIT 1;"
+        query = "SELECT dateTime, pressure, outTemp, inTemp, outHumidity, windSpeed, windDir, deltarain, geiger, illumination FROM raw ORDER BY dateTime DESC LIMIT 1;"
         cursor.execute(query)
         data = cursor.fetchall()
         for rec in data:
@@ -87,7 +68,6 @@ def get_data_from_database():
 
 def tell_weather(bot, update):
     current_weather = get_data_from_database()
-
     msg = """
            Погодные данные на %s: \
            \n\xF0\x9F\x94\xB9 Температура воздуха: %s °C \
@@ -115,10 +95,9 @@ def echo(bot, update):
 
 
 def main():
-    TOKEN, MYSQL_USER, MYSQL_PASSWD, MYSQL_DB = read_config(CONFIG)
 
     # Create the EventHandler and pass it your bot's token.
-    updater = Updater(TOKEN)
+    updater = Updater(config['token'])
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
@@ -141,7 +120,6 @@ def main():
     # SIGTERM or SIGABRT. This should be used most of the time, since
     # start_polling() is non-blocking and will stop the bot gracefully.
     updater.idle()
-
 
 if __name__ == '__main__':
     main()
