@@ -70,12 +70,12 @@ def tell_weather(bot, update):
     current_weather = get_data_from_database()
     msg = """
            Погодные данные на %s: \
-           \n\xF0\x9F\x94\xB9 Температура воздуха: %s °C \
-           \n\xF0\x9F\x94\xB9 Давление: %s мм рт.ст \
-           \n\xF0\x9F\x94\xB9 Влажность: %s %% \
-           \n\xF0\x9F\x94\xB9 Ветер: %s м/с\
-           \n\xF0\x9F\x94\xB9 Дождь: %s мм/ч\
-           \n\xF0\x9F\x94\xB9 Освещенность: %s люкс \
+           \n\xE2\x99\xA8 Температура воздуха: %s °C \
+           \n\xF0\x9F\x92\xAA Давление: %s мм рт.ст \
+           \n\xF0\x9F\x92\xA6 Влажность: %s %% \
+           \n\xF0\x9F\x92\xA8 Ветер: %s м/с\
+           \n\xE2\x98\x94 Дождь: %s мм/ч\
+           \n\xF0\x9F\x92\xA1 Освещенность: %s люкс \
            """ % (datetime.datetime.fromtimestamp(int(current_weather['dateTime'])).strftime('%d.%m.%Y, %H:%M'),
                   current_weather['outTemp'],
                   current_weather['pressure'],
