@@ -85,9 +85,13 @@ def tell_weather(bot, update):
                   current_weather['illumination']
                   )
 
-    bot.send_message(chat_id=update.message.chat_id,
-                     text=msg)
+    bot.send_message(chat_id=update.message.chat_id, text=msg)
     print(update.message.chat_id, update.message.text)
+
+
+def send_kitty(bot, update):
+    random_kitty = "http://thecatapi.com/api/images/get?format=src"
+    bot.sendPhoto(chat_id=update.message.chat_id, photo=random_kitty)
 
 
 def echo(bot, update):
@@ -106,6 +110,7 @@ def main():
     dp.add_handler(CommandHandler("start", start))
     # dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("tell", tell_weather))
+    dp.add_handler(CommandHandler("kitty", send_kitty))
 
     # on noncommand i.e message - echo the message on Telegram
     dp.add_handler(MessageHandler(Filters.text, echo))
