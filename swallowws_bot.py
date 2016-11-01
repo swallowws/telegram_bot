@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+from telegram import ChatAction
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import MySQLdb
 import configparser
@@ -91,6 +92,7 @@ def tell_weather(bot, update):
 
 def send_kitty(bot, update):
     random_kitty = "http://thecatapi.com/api/images/get?format=src"
+    bot.sendChatAction(chat_id=update.message.chat_id, action=ChatAction.TYPING)
     bot.sendPhoto(chat_id=update.message.chat_id, photo=random_kitty)
 
 
