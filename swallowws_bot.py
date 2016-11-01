@@ -32,15 +32,12 @@ else:
 
 
 def start(bot, update):
-    custom_keyboard = "Узнать погоду"
-    reply_markup = ReplyKeyboardMarkup(custom_keyboard)
-    msg = "Погодная станция \"Ласточка\" " \
-          "(Санкт-Петербург, Светлановская пл.) " \
-          "\n Чтобы узнать погоду, отправь /tell"
+    custom_keyboard = [["/tell"]]
+    reply_markup = ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True)
+    msg = "Привет! \xE2\x9C\x8C" \
+          "\nЧтобы узнать погоду, нажми на кнопку\xF0\x9F\x91\x87 или отправь мне /tell"
     bot.send_message(chat_id=update.message.chat_id,
                      text=msg, reply_markup=reply_markup)
-
-
 
 
 def get_data_from_database():
