@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from telegram import ChatAction
+from telegram import ChatAction, ReplyKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import MySQLdb
 import configparser
@@ -32,12 +32,15 @@ else:
 
 
 def start(bot, update):
+    custom_keyboard = "Узнать погоду"
+    reply_markup = ReplyKeyboardMarkup(custom_keyboard)
     msg = "Погодная станция \"Ласточка\" " \
           "(Санкт-Петербург, Светлановская пл.) " \
           "\n Чтобы узнать погоду, отправь /tell"
-
     bot.send_message(chat_id=update.message.chat_id,
-                     text=msg)
+                     text=msg, reply_markup=reply_markup)
+
+
 
 
 def get_data_from_database():
@@ -96,10 +99,6 @@ def send_kitty(bot, update):
     bot.sendPhoto(chat_id=update.message.chat_id, photo=random_kitty)
 
 
-def echo(bot, update):
-    update.message.reply_text(update.message.text)
-
-
 def main():
 
     # Create the EventHandler and pass it your bot's token.
@@ -113,9 +112,6 @@ def main():
     # dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("tell", tell_weather))
     dp.add_handler(CommandHandler("kitty", send_kitty))
-
-    # on noncommand i.e message - echo the message on Telegram
-    dp.add_handler(MessageHandler(Filters.text, echo))
 
     # log all errors
     # dp.add_error_handler(error)
