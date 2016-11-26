@@ -77,7 +77,7 @@ def tell_weather(bot, update):
            \n\xF0\x9F\x92\xA8 Ветер: *%s* м/с\
            \n\xE2\x98\x94 Дождь: *%s* мм/ч\
            \n\xF0\x9F\x92\xA1 Освещенность: *%s* люкс \
-           \n   Ваша [Ласточка](http://weather.thirdpin.ru) \xF0\x9F\x92\x9A \
+           \n\xF0\x9F\x92\x9A[Ласточка](http://weather.thirdpin.ru)\xF0\x9F\x92\x9A \
            """ % (datetime.datetime.fromtimestamp(int(current_weather['dateTime'])).strftime('%d.%m.%Y, %H:%M'),
                   current_weather['outTemp'],
                   current_weather['pressure'],
